@@ -136,17 +136,38 @@
     },
 
 
-
     // Major Diagonals - go from top-left to bottom-right
     // --------------------------------------------------------------
     // 
     // test if a specific major diagonal on this board contains a conflict
     hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow){
+      var majorDiagArray = [];
+      var rows = this.rows();
+      var diagnolLength = this.rows().length - majorDiagonalColumnIndexAtFirstRow;
+
+      for(var i = 0; i < diagnolLength; i++){
+        majorDiagArray.push(rows[i][majorDiagonalColumnIndexAtFirstRow]);
+        majorDiagonalColumnIndexAtFirstRow++;
+      };
+
+      if(_(majorDiagArray).reduce(function(sum, value){
+        return sum + value;
+      }) > 1){
+        return true;
+      };
+
       return false; // fixme
     },
 
     // test if any major diagonals on this board contain conflicts
     hasAnyMajorDiagonalConflicts: function(){
+      var numCols = this.rows()[0].length;
+
+      for(var i = 0; i < numCols; i++){
+        if(this.hasMajorDiagonalConflictAt(i)){
+          return true;
+        }
+      }
       return false; // fixme
     },
 
