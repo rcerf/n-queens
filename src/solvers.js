@@ -19,20 +19,20 @@ window.findNRooksSolution = function(n){
   }
   var keyArray = _.range(0,n);
 
-  var placeRook = function(keyArray, partialSolution, chooseIndex){
+  var placeRook = function(keyArray, partialSolution){
     if(keyArray.length === 0){
       return partialSolution;
     }else{
       var row = [];
+      // build row
       for(var i = 0; i < n; i++){
-        if(i === keyArray[chooseIndex]){
+        if(i === keyArray[0]){
           row.push(1);
         }else{
           row.push(0);
         }
       }
       partialSolution.push(row);
-
       return placeRook(keyArray.slice(1), partialSolution);
     }
   }
@@ -49,19 +49,27 @@ window.countNRooksSolutions = function(n){
   if(n <= 1){
     return 1;
   }
+  
+  var keysArray = [];
+  var currentLevel = n;
 
-  // var solutionCount = _.reduce(_.range(1, n), function(product, value){
-  //   return value * product;
-  // }, 1);
-  var product = 1;
-  for(var i = n; i>0; i--){
-    product = product * i;
+  var keyGenerator = function(partialSolution, currentLevel){
+    if(currentLevel === 0){
+      keysArray.push(partialSolution);
+      return;
+    }
+    for(var i = (n-currentLevel); i < n; i++){
+      // building the entire matrix e.g. [0, 1, 2]
+      var subResults = [];
+      subResults.push(i);
+      keyGenerator(partialSolution.concat(subResults), currentLevel - 1);
+    }
   };
-  return product;
+  keyGenerator([], n);
 
 
-  console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
-  return solutionCount;
+  console.log('Number of solutions for ' + n + ' rooks:', keysArray.length);
+  return keysArray.length;
 };
 
 
