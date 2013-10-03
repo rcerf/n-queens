@@ -51,26 +51,27 @@ window.countNRooksSolutions = function(n){
     return 1;
   }
 
-  var keysArray = [];
+  var solutionsArray = [];
+  var masterKey =_.range(0,n);
   var currentLevel = n;
 
-  var keyGenerator = function(partialSolution, currentLevel){
+  var keyGenerator = function(partialSolution, currentLevel, masterKey){
     if(currentLevel === 0){
-      keysArray.push(partialSolution);
+      solutionsArray.push(partialSolution);
       return;
     }
-    for(var i = (n-currentLevel); i < n; i++){
+    for(var i = 0; i < masterKey.length; i++){
       // building the entire matrix e.g. [0, 1, 2]
       var subResults = [];
-      subResults.push(i);
-      keyGenerator(partialSolution.concat(subResults), currentLevel - 1);
+      subResults.push(masterKey[i]);
+      keyGenerator(partialSolution.concat(subResults), currentLevel - 1, masterKey.slice(0,i).concat(masterKey.slice(i+1)));
     }
   };
-  keyGenerator([], n);
+  keyGenerator([], n, masterKey);
 
 
-  console.log('Number of solutions for ' + n + ' rooks:', keysArray.length);
-  return keysArray.length;
+  console.log('Number of solutions for ' + n + ' rooks:', solutionsArray.length);
+  return solutionsArray.length;
 };
 
 
