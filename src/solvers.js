@@ -98,44 +98,90 @@ window.countNQueensSolutions = function(n){
   if(n <= 1){
     return 1;
   }
-  var keyArray = _.range(0, n);
-  var possibleSolutions = [];
-  var currentLevel = n;
+  n = 4;
 
-  var keyGenerator = function(partialSolution, currentLevel, keyArray){
+  var solutionsArray = [];
+  var masterKey =[];
+  for(var i = 0; i < n; i++){ masterKey.push(_.range(0,n)); };
+  var currentLevel = n;
+  var keyGenerator = function(partialSolution, currentLevel, masterKey){
     if(currentLevel === 0){
-      possibleSolutions.push(partialSolution);
+      solutionsArray.push(partialSolution);
       return;
     }
-    for(var i = (n-currentLevel); i < n; i++){
-      // // building the entire matrix e.g. [0, 1, 2]
-      // var subResults = [];
-      // subResults.push(i);
-      // keyGenerator(partialSolution.concat(subResults), currentLevel - 1);
-      var row = [];
-      // build row
-      for(var j = 0; j < n; j++){
-        if(j === keyArray[i]){
-          row.push(1);
-        }else{
-          row.push(0);
-        }
-      }
-      var tempSolution =  [];
-      tempSolution.push(row);
-      keyGenerator(partialSolution.concat(tempSolution), currentLevel - 1, keyArray);
+    for(var i = 0; i < masterKey[0].length; i++){
+      // building the entire matrix e.g. [0, 1, 2]
+      var subResults = [];
+      //i === location of queen
+      subResults.push(masterKey[0][i]);
+      // trim for queens
+      debugger;
+      var subKey = keyTrim(masterKey, i, currentLevel - 1);
+
+      keyGenerator(partialSolution.concat(subResults), currentLevel - 1, subKey);
     }
   };
-  keyGenerator([], n, keyArray);
-  
-  var queenMatrix = _.filter(possibleSolutions, function(matrix){
-    var tempBoard = new Board(matrix);
-    if(!tempBoard.hasAnyMajorDiagonalConflicts() && !tempBoard.hasAnyMinorDiagonalConflicts()){
-      console.log('check matrix', matrix);
-      return matrix;
-    }
-  });
 
-  console.log('Number of solutions for ' + n + ' queens:', queenMatrix.length);
-  return queenMatrix.length;
+  var keyTrim = function(keyArray, i, currentLevel){
+    var difference = n - currentLevel;
+    if(currentLevel === 0){
+      return keyArray.slice(1);
+    }
+    var subKey = keyArray.slice(0);
+    subKey[n - currentLevel - (n - subKey.length)] = _.filter(subKey[n-currentLevel - (n - subKey.length)], function(value){
+      if(value !== i-difference && value !== i && value !== i + difference){
+        return value;
+      }
+    });
+    return keyTrim(subKey, i, currentLevel -1);
+  }
+
+  keyGenerator([], n, masterKey);
+
+
+  console.log('Number of solutions for ' + n + ' queens:', solutionsArray.length);
+  console.log('solutions', solutionsArray);
+  return solutionsArray.length;
+
+
+  // if(n <= 1){
+  //   return 1;
+  // }
+  // var keyArray = _.range(0, n);
+  // var possibleSolutions = [];
+  // var currentLevel = n;
+
+  // var keyGenerator = function(partialSolution, currentLevel, keyArray){
+  //   if(currentLevel === 0){
+  //     possibleSolutions.push(partialSolution);
+  //     return;
+  //   }
+  //   for(var i = (n-currentLevel); i < n; i++){
+  //     // // building the entire matrix e.g. [0, 1, 2]
+  //     var row = [];
+  //     // build row
+  //     for(var j = 0; j < n; j++){
+  //       if(j === keyArray[i]){
+  //         row.push(1);
+  //       }else{
+  //         row.push(0);
+  //       }
+  //     }
+  //     var tempSolution =  [];
+  //     tempSolution.push(row);
+  //     keyGenerator(partialSolution.concat(tempSolution), currentLevel - 1, keyArray);
+  //   }
+  // };
+  // keyGenerator([], n, keyArray);
+  
+  // var queenMatrix = _.filter(possibleSolutions, function(matrix){
+  //   var tempBoard = new Board(matrix);
+  //   if(!tempBoard.hasAnyMajorDiagonalConflicts() && !tempBoard.hasAnyMinorDiagonalConflicts()){
+  //     console.log('check matrix', matrix);
+  //     return matrix;
+  //   }
+  // });
+
+  // console.log('Number of solutions for ' + n + ' queens:', queenMatrix.length);
+  // return queenMatrix.length;
 };
