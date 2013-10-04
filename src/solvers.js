@@ -78,18 +78,10 @@ window.countNRooksSolutions = function(n){
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n){
-  var solution = [];
-  
-  var possibleSolutions = this.countNRooksSolutions(n);
+  var solution = this.countNQueensSolutions(n);
 
-  // possibleSolutions.each(
-  //   if tests pass
-  //     great!
-  // )
-  
-
-  console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
-  return solution;
+  console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
+  return solution[0];
 };
 
 
@@ -101,48 +93,68 @@ window.countNQueensSolutions = function(n){
   n = 4;
 
   var solutionsArray = [];
-  var masterKey =[];
-  for(var i = 0; i < n; i++){ masterKey.push(_.range(0,n)); };
+  var masterKey = _.range(0, n);
   var currentLevel = n;
   var keyGenerator = function(partialSolution, currentLevel, masterKey){
     if(currentLevel === 0){
       solutionsArray.push(partialSolution);
+      console.log(partialSolution);
       return;
     }
-    for(var i = 0; i < masterKey[0].length; i++){
+    
+    // call queenKey here
+    var queenKey = queenKeyGenerator(masterKey, partialSolution, currentLevel);
+
+    for(var i = 0; i < queenKey.length; i++){
       // building the entire matrix e.g. [0, 1, 2]
       var subResults = [];
       //i === location of queen
-      subResults.push(masterKey[0][i]);
+      subResults.push(queenKey[i]);
       // trim for queens
-      debugger;
-      var subKey = keyTrim(masterKey, i, currentLevel - 1);
-
-      keyGenerator(partialSolution.concat(subResults), currentLevel - 1, subKey);
+      var returnKey = _.filter(masterKey, function(value){
+        if(value !== queenKey[i]){
+          return value;
+        }
+      });
+      keyGenerator(partialSolution.concat(subResults), currentLevel - 1, returnKey);
     }
   };
 
-  var keyTrim = function(keyArray, i, currentLevel){
+  var queenKeyGenerator = function(masterKey, partialSolution, currentLevel){
     var difference = n - currentLevel;
-    if(currentLevel === 0){
-      return keyArray.slice(1);
+    var queenKey =  masterKey.slice(0);
+    for(var j = 0; j < partialSolution.length; j++){
+      var minorDiag = partialSolution[j] - difference;
+      var majorDiag = partialSolution[j] + difference;
+      difference--;
+      queenKey = _.filter(queenKey, function(value) {
+        if(value !== minorDiag && value !== majorDiag){
+          return value;
+        }
+      });
     }
-    var subKey = keyArray.slice(0);
-    subKey[n - currentLevel - (n - subKey.length)] = _.filter(subKey[n-currentLevel - (n - subKey.length)], function(value){
-      if(value !== i-difference && value !== i && value !== i + difference){
-        return value;
-      }
-    });
-    return keyTrim(subKey, i, currentLevel -1);
+    return queenKey;
   }
-
+  debugger;
   keyGenerator([], n, masterKey);
-
-
   console.log('Number of solutions for ' + n + ' queens:', solutionsArray.length);
-  console.log('solutions', solutionsArray);
   return solutionsArray.length;
 
+  // var keyTrim = function(keyArray, i, currentLevel){
+  //   var difference = n - currentLevel;
+  //   if(currentLevel === 0){
+  //     return keyArray.slice(1);
+  //   }
+  //   var subKey = keyArray.slice(0);
+  //   subKey[n - currentLevel - (n - subKey.length)] = _.filter(subKey[n-currentLevel - (n - subKey.length)], function(value){
+  //     if(value !== i-difference && value !== i && value !== i + difference){
+  //       return value;
+  //     }
+  //   });
+  //   return keyTrim(subKey, i, currentLevel -1);
+  // }
+
+  
 
   // if(n <= 1){
   //   return 1;
